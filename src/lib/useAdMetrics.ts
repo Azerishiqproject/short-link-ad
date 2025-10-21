@@ -151,10 +151,11 @@ export function useAdMetrics(
     };
   }, [firstInteractionMs, minimumVisibilityRatio]);
 
-  const viewabilityRatio = useMemo(() => {
+  // Derive viewability ratio without unnecessary memo dependency warning
+  const viewabilityRatio = (() => {
     const samples = visibilitySamplesRef.current;
     return samples.length ? samples.reduce((a, b) => a + b.ratio, 0) / samples.length : 0;
-  }, [visibleMs]);
+  })();
 
   return {
     ref,
