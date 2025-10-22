@@ -134,16 +134,25 @@ function AdViewClient() {
       setSubmitting(true);
       setError(null);
       const res = await postImpression({ token, metrics: metricsPayload, stage });
+      console.log("Impression response:", res);
+      
       if (res.done) {
         setDone(true);
         setRedirect(res.redirect ?? null);
+        console.log("Final redirect URL:", res.redirect);
+        
         if (res.redirect) {
+          console.log("Redirecting to:", res.redirect);
           setTimeout(() => {
             // Click logging is now handled in the backend impression endpoint
             window.location.href = res.redirect as string;
           }, 500);
         } else {
-          router.replace("/thanks");
+          console.error("No redirect URL received from server. Full response:", res);
+          setError("Yönlendirme URL'si alınamadı. Lütfen tekrar deneyin.");
+          setTimeout(() => {
+            router.replace("/thanks");
+          }, 2000);
         }
       } else {
         // Move to second ad immediately once stage-1 validated
@@ -151,7 +160,23 @@ function AdViewClient() {
         reset();
       }
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : "Gönderim hatası";
+      console.error("Impression submission error:", e);
+      let message = "Gönderim hatası";
+      
+      if (e instanceof Error) {
+        if (e.message.includes('redirect-url-missing')) {
+          message = "Hedef URL bulunamadı. Lütfen link sahibi ile iletişime geçin.";
+        } else if (e.message.includes('link-not-found')) {
+          message = "Link bulunamadı. Link silinmiş olabilir.";
+        } else if (e.message.includes('impression-failed-404')) {
+          message = "Link bulunamadı. Link silinmiş olabilir.";
+        } else if (e.message.includes('impression-failed-500')) {
+          message = "Sunucu hatası. Lütfen tekrar deneyin.";
+        } else {
+          message = e.message;
+        }
+      }
+      
       setError(message);
     } finally {
       setSubmitting(false);
