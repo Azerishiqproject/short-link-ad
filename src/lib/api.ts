@@ -37,8 +37,7 @@ export type ImpressionResponse =
   | ImpressionResponseSingleStage
   | ImpressionResponseFinalStage;
 
-const API_BASE =
-  process.env.API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DEFAULT_IMPRESSION_ENDPOINT = `${API_BASE}/api/links/impression`;
 
 export async function postImpression(
