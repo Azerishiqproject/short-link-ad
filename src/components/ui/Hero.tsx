@@ -24,9 +24,7 @@ export default function Hero() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </a>
-            <a href="#contact" className="inline-flex items-center justify-center rounded-xl border-2 border-slate-300 bg-white px-8 py-4 text-slate-800 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-all duration-200">
-              Demo İzle
-            </a>
+            
           </div>
           <div className="mt-8 flex items-center gap-6 text-sm text-slate-500">
             <div className="flex items-center gap-2">
