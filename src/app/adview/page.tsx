@@ -214,9 +214,17 @@ function AdViewClient() {
     } catch (_) {}
   }, []);
 
-  const mainSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_MAIN || "1234567890";
-  const side1Slot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDE1 || "1234567891";
-  const side2Slot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDE2 || "1234567892";
+  // Provided ad slots
+  const slotSquare = "2332484053";   // kare
+  const slotHorizontal = "7909804864"; // yatay
+  const slotVertical = "5747332498";  // dikey
+
+  // Push ads when stage changes to ensure units render
+  useEffect(() => {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (_) {}
+  }, [stage]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100">
@@ -254,7 +262,7 @@ function AdViewClient() {
                   className="adsbygoogle"
                   style={{ display: 'block', width: '100%', height: '100%' }}
                   data-ad-client="ca-pub-9175540655125327"
-                  data-ad-slot={mainSlot}
+                  data-ad-slot={slotHorizontal}
                   data-ad-format="auto"
                   data-full-width-responsive="true"
                 />
@@ -269,7 +277,7 @@ function AdViewClient() {
                   className="adsbygoogle"
                   style={{ display: 'block', width: '100%', height: '100%' }}
                   data-ad-client="ca-pub-9175540655125327"
-                  data-ad-slot={side1Slot}
+                  data-ad-slot={slotSquare}
                   data-ad-format="auto"
                   data-full-width-responsive="true"
                 />
@@ -281,7 +289,7 @@ function AdViewClient() {
                   className="adsbygoogle"
                   style={{ display: 'block', width: '100%', height: '100%' }}
                   data-ad-client="ca-pub-9175540655125327"
-                  data-ad-slot={side2Slot}
+                  data-ad-slot={slotVertical}
                   data-ad-format="auto"
                   data-full-width-responsive="true"
                 />
