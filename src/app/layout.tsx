@@ -25,6 +25,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-9175540655125327" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-white to-slate-50 min-h-screen`}>
         <div className="fixed inset-0 pointer-events-none" style={{backgroundImage:"radial-gradient(#0ea5e9 1px, transparent 1px)", backgroundSize:"22px 22px", opacity:0.06}} />
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
