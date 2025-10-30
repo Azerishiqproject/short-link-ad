@@ -1,9 +1,9 @@
 "use client";
 
-import { Suspense, useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAdMetrics } from "@/lib/useAdMetrics";
-import { ImpressionMetricsPayload, ImpressionStage, postImpression } from "@/lib/api";
+import { ImpressionMetricsPayload, ImpressionStage, postImpression, consumeAdminAdOnce } from "@/lib/api";
 import Script from "next/script";
 
 function buildHints(): Record<string, unknown> {
@@ -32,6 +32,10 @@ function buildViewport() {
   };
 }
 
+declare global {
+  interface Window { adsbygoogle?: unknown[] }
+}
+
 function AdViewClient() {
   const search = useSearchParams();
   const router = useRouter();
@@ -52,6 +56,9 @@ function AdViewClient() {
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [isPageFocused, setIsPageFocused] = useState(true);
   const [activeTime, setActiveTime] = useState(0);
+  const [adminAdTried, setAdminAdTried] = useState(false);
+
+  const adsInitialized = useRef(false);
 
   const metricsPayload: ImpressionMetricsPayload = useMemo(
     () => ({
@@ -133,6 +140,16 @@ function AdViewClient() {
     try {
       setSubmitting(true);
       setError(null);
+      // Attempt to open admin-configured site in a new tab once (stage 1 only), triggered by user gesture
+      if (!adminAdTried && stage === 1) {
+        setAdminAdTried(true);
+        try {
+          const resp = await consumeAdminAdOnce();
+          if (resp?.openUrl && resp.url) {
+            window.open(resp.url as string, "_blank", "noopener");
+          }
+        } catch (_) { /* ignore */ }
+      }
       const res = await postImpression({ token, metrics: metricsPayload, stage });
       console.log("Impression response:", res);
       
@@ -188,11 +205,30 @@ function AdViewClient() {
   // Simple visibility progress indicator for UX
   const progress = Math.min(100, Math.round(((state.visibleMs || 0) / 5000) * 100));
 
+  // Initialize AdSense in this page once
+  useEffect(() => {
+    if (adsInitialized.current) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      adsInitialized.current = true;
+    } catch (_) {}
+  }, []);
+
+  const mainSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_MAIN || "1234567890";
+  const side1Slot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDE1 || "1234567891";
+  const side2Slot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDE2 || "1234567892";
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9175540655125327"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       <Script src="https://publisher.linkvertise.com/cdn/linkvertise.js" strategy="afterInteractive" />
       <Script id="linkvertise-init-adview" strategy="afterInteractive">{`
-        try { linkvertise(1415315, { whitelist: ["glorta.com","glorta.link"}); } catch (_) {}
+        try { linkvertise(1415315, { whitelist: ["glorta.com","glorta.link"] }); } catch (_) {}
       `}</Script>
       <div className="w-full max-w-5xl rounded-2xl border border-black/10 bg-white shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
@@ -212,22 +248,43 @@ function AdViewClient() {
           {/* Büyük, izlenen alan */
           }
           <div className="lg:col-span-2">
-            <div ref={setDivRef} className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-50 h-[320px] flex items-center justify-center">
+            <div ref={setDivRef} className="rounded-xl border border-black/10 bg-white h-[320px] flex items-center justify-center p-3">
               <div id="lv-ad-main" className="w-full h-full flex items-center justify-center">
-                <span className="text-sm">{stage === 1 ? "Reklam Alanı #1" : "Reklam Alanı #2"}</span>
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                  data-ad-client="ca-pub-9175540655125327"
+                  data-ad-slot={mainSlot}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
               </div>
             </div>
           </div>
           {/* İkincil alanlar (placeholder) */}
           <div className="grid grid-rows-2 gap-4">
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
+            <div className="rounded-xl border border-black/10 bg-white h-[148px] flex items-center justify-center p-3">
               <div id="lv-ad-side-1" className="w-full h-full flex items-center justify-center">
-                <span className="text-xs">Yan Banner</span>
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                  data-ad-client="ca-pub-9175540655125327"
+                  data-ad-slot={side1Slot}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
               </div>
             </div>
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
+            <div className="rounded-xl border border-black/10 bg-white h-[148px] flex items-center justify-center p-3">
               <div id="lv-ad-side-2" className="w-full h-full flex items-center justify-center">
-                <span className="text-xs">Yan Banner</span>
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                  data-ad-client="ca-pub-9175540655125327"
+                  data-ad-slot={side2Slot}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
               </div>
             </div>
           </div>

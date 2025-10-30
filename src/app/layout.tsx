@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -29,8 +30,7 @@ export default function RootLayout({
         <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/60 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sky-600 to-sky-700 grid place-items-center text-white font-bold text-lg shadow-lg">T</div>
-              <div className="font-bold text-xl text-slate-900 tracking-tight">tr.link</div>
+              <Image src="/AppImage/logo_dark.jpeg" alt="tr.link" width={140} height={36} priority />
             </div>
             <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
               <a href="#top" className="hover:text-slate-900 transition-colors duration-200 relative group">

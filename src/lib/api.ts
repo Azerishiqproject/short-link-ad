@@ -39,6 +39,7 @@ export type ImpressionResponse =
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const DEFAULT_IMPRESSION_ENDPOINT = `${API_BASE}/api/links/impression`;
+const ADMIN_AD_CONSUME_ENDPOINT = `${API_BASE}/api/admin-ads/consume`;
 
 export async function postImpression(
   body: ImpressionRequestBody,
@@ -80,6 +81,13 @@ export async function postImpression(
   throw lastError instanceof Error
     ? lastError
     : new Error("impression-post-unknown-error");
+}
+
+export async function consumeAdminAdOnce(): Promise<{ openUrl: boolean; url?: string | null; remaining?: number }>
+{
+  const res = await fetch(ADMIN_AD_CONSUME_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, mode: "cors" });
+  if (!res.ok) return { openUrl: false };
+  try { return await res.json(); } catch { return { openUrl: false }; }
 }
 
 

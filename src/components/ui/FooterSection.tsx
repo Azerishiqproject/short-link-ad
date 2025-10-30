@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function FooterSection() {
   return (
     <footer className="bg-slate-900 text-white">
@@ -5,8 +7,7 @@ export default function FooterSection() {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-600 to-sky-700 grid place-items-center text-white font-bold text-xl shadow-lg">T</div>
-              <div className="font-bold text-2xl text-white tracking-tight">tr.link</div>
+              <Image src="/AppImage/logo_light.jpeg" alt="tr.link" width={160} height={40} />
             </div>
             <p className="text-slate-300 mb-6 max-w-md">
               Profesyonel link klikleme hizmeti ile kampanyalarınızı güçlendirin. 
@@ -65,6 +66,12 @@ export default function FooterSection() {
     </footer>
   );
 }
+
+
+
+
+
+
 
 
 
