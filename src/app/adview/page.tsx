@@ -231,7 +231,7 @@ function AdViewClient() {
                   id="adsterra-native"
                   async
                   data-cfasync="false"
-                  src="//pl27961098.effectivgatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
+                  src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
                   strategy="afterInteractive"
                 />
               </div>
@@ -240,37 +240,35 @@ function AdViewClient() {
           {/* İkincil alanlar (placeholder) */}
           <div className="grid grid-rows-2 gap-4">
             {/* Adsterra Banner 300x250 - Slot 1 */}
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
+            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 flex items-center justify-center">
               <div id="lv-ad-side-1" className="w-full h-full flex items-center justify-center">
-                <div id="adsterra-banner-1" style={{ width: 300, height: 250 }} />
-                <Script id="adsterra-banner-1-opts" strategy="afterInteractive">{`
+                <div style={{ width: 300, height: 250 }} />
+                <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
                   var atOptions = {
-                    'key': '208e66d41cfa6e22469da9df59ae57fc',
-                    'format': 'iframe',
-                    'height': 250,
-                    'width': 300,
-                    'params': {}
+                    'key' : '208e66d41cfa6e22469da9df59ae57fc',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
                   };
                 `}</Script>
-                {/* NOTE: Provide the exact invoke.js URL for this unit */}
-                {/* <Script id="adsterra-banner-1-script" src="//YOUR_ADSTERRA_DOMAIN/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" /> */}
+                <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
               </div>
             </div>
-            {/* Adsterra Banner 300x250 - Slot 2 */}
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
+            {/* Adsterra Banner 160x600 - Slot 2 (Skyscraper) */}
+            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 flex items-center justify-center">
               <div id="lv-ad-side-2" className="w-full h-full flex items-center justify-center">
-                <div id="adsterra-banner-2" style={{ width: 300, height: 250 }} />
-                <Script id="adsterra-banner-2-opts" strategy="afterInteractive">{`
+                <div style={{ width: 160, height: 600 }} />
+                <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
                   var atOptions = {
-                    'key': '208e66d41cfa6e22469da9df59ae57fc',
-                    'format': 'iframe',
-                    'height': 250,
-                    'width': 300,
-                    'params': {}
+                    'key' : '330827705bb5350a894aee8ca1e0a40a',
+                    'format' : 'iframe',
+                    'height' : 600,
+                    'width' : 160,
+                    'params' : {}
                   };
                 `}</Script>
-                {/* NOTE: Provide the exact invoke.js URL for this unit */}
-                {/* <Script id="adsterra-banner-2-script" src="//YOUR_ADSTERRA_DOMAIN/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" /> */}
+                <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
               </div>
             </div>
           </div>
