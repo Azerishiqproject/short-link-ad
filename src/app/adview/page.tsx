@@ -105,29 +105,25 @@ function AdViewClient() {
     };
   }, []);
 
-  // Gerçek zamanlı countdown - sadece sayfa görünür ve odakta olduğunda
+  // Gerçek zamanlı countdown - eşik geçildikten sonra ve sayfa görünür + odakta iken
   useEffect(() => {
-    if (!canProceed) {
+    if (!canProceed && passedThreshold) {
       const interval = setInterval(() => {
-        // Sadece sayfa görünür ve odakta olduğunda zamanı say
         if (isPageVisible && isPageFocused) {
           setActiveTime(prev => {
             const newActiveTime = prev + 0.1; // 100ms artır
             const remaining = Math.max(0, 5 - newActiveTime);
             setCountdown(Math.ceil(remaining));
-            
             if (remaining <= 0) {
               setCanProceed(true);
             }
-            
             return newActiveTime;
           });
         }
       }, 100);
-
       return () => clearInterval(interval);
     }
-  }, [canProceed, isPageVisible, isPageFocused]);
+  }, [canProceed, passedThreshold, isPageVisible, isPageFocused]);
 
   const submitStage = async () => {
     if (!token || submitting || done || !canProceed) return;
@@ -252,19 +248,19 @@ function AdViewClient() {
 
             {/* Buton ve durum mesajları */}
             <div className="p-4 rounded-xl border border-black/10 bg-white flex flex-col gap-3 text-sm">
-              <button
+            <button
                 onClick={submitStage}
-                disabled={!passedThreshold || submitting || done || !canProceed}
+              disabled={submitting || done || !canProceed}
                 className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
               >
                 {submitting ? 'Gönderiliyor...' : 
                  !canProceed ? `Bekleyin... (${countdown}s)` :
                  stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)'}
               </button>
-              {!passedThreshold && <div className="text-slate-500 text-center">Eşiği geçmek için alanı en az 5 sn görünür tutun ve etkileşim yapın.</div>}
-              {!canProceed && passedThreshold && !isPageVisible && <div className="text-red-500 text-center">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</div>}
-              {!canProceed && passedThreshold && !isPageFocused && <div className="text-red-500 text-center">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</div>}
-              {!canProceed && passedThreshold && isPageVisible && isPageFocused && <div className="text-slate-500 text-center">Lütfen 5 saniye bekleyin... ({countdown}s)</div>}
+            {!passedThreshold && <div className="text-slate-500 text-center">Önce reklam alanını görünür ve etkileşimli tutarak eşiği geçin.</div>}
+            {!canProceed && passedThreshold && !isPageVisible && <div className="text-red-500 text-center">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</div>}
+            {!canProceed && passedThreshold && !isPageFocused && <div className="text-red-500 text-center">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</div>}
+            {!canProceed && passedThreshold && isPageVisible && isPageFocused && <div className="text-slate-500 text-center">Eşik geçildi. Lütfen 5 saniye bekleyin... ({countdown}s)</div>}
               {error && <div className="text-red-600 text-center">{error}</div>}
               {done && !redirect && <div className="text-emerald-600 text-center">Tamamlandı, yönlendiriliyor...</div>}
             </div>
@@ -308,10 +304,10 @@ function AdsterraIframe({ options, src, style }: { options: Record<string, unkno
       opts.type = 'text/javascript';
       opts.text = `atOptions = ${JSON.stringify(options)};`;
       // Invoke script (synchronous to preserve order)
-      const invoke = document.createElement('script');
+      const invoke = document.createElement('script') as HTMLScriptElement;
       invoke.type = 'text/javascript';
       invoke.src = src;
-      (invoke as any).async = false;
+      invoke.async = false;
       invoke.onload = () => { if (!isCancelled) resolve(); };
       invoke.onerror = () => { if (!isCancelled) resolve(); };
       hostRef.current.appendChild(opts);
