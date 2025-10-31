@@ -218,59 +218,55 @@ function AdViewClient() {
           <div className="h-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
         </div>
 
-        {/* Reklam alanları grid: 1 büyük (izlenen) + 2 küçük placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Büyük, izlenen alan */
-          }
-          <div className="lg:col-span-2">
-            <div ref={setDivRef} className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-50 h-[320px] flex items-center justify-center">
-              <div id="lv-ad-main" className="w-full h-full flex items-center justify-center">
-                {/* Adsterra Native (Async) */}
-                <div id="container-7cf6ae2b4489f51ec0162164b881837d" className="w-full h-full flex items-center justify-center"></div>
-                <Script
-                  id="adsterra-native"
-                  async
-                  data-cfasync="false"
-                  src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
-                  strategy="afterInteractive"
-                />
-              </div>
+        {/* Reklam kutularını kaldırdık; sadece iframeler ve scriptler, responsive düzen */}
+        <div className="flex flex-col gap-4">
+          {/* Ana izlenen alan: Adsterra Native */}
+          <div ref={setDivRef} className="w-full rounded-xl border border-black/10 bg-neutral-50">
+            <div id="lv-ad-main" className="w-full h-full flex items-center justify-center p-2">
+              <div id="container-7cf6ae2b4489f51ec0162164b881837d" className="w-full flex items-center justify-center" />
+              <Script
+                id="adsterra-native"
+                async
+                data-cfasync="false"
+                src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
+                strategy="afterInteractive"
+              />
             </div>
           </div>
-          {/* İkincil alanlar (placeholder) */}
-          <div className="grid grid-rows-2 gap-4">
-            {/* Adsterra Banner 300x250 - Slot 1 */}
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 flex items-center justify-center">
-              <div id="lv-ad-side-1" className="w-full h-full flex items-center justify-center">
-                <div style={{ width: 300, height: 250 }} />
-                <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
-                  var atOptions = {
-                    'key' : '208e66d41cfa6e22469da9df59ae57fc',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                  };
-                `}</Script>
-                <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
-              </div>
-            </div>
-            {/* Adsterra Banner 160x600 - Slot 2 (Skyscraper) */}
-            <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 flex items-center justify-center">
-              <div id="lv-ad-side-2" className="w-full h-full flex items-center justify-center">
-                <div style={{ width: 160, height: 600 }} />
-                <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
-                  var atOptions = {
-                    'key' : '330827705bb5350a894aee8ca1e0a40a',
-                    'format' : 'iframe',
-                    'height' : 600,
-                    'width' : 160,
-                    'params' : {}
-                  };
-                `}</Script>
-                <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
-              </div>
-            </div>
+
+          {/* 300x250 iframe - her cihazda görünür */}
+          <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
+            <div className="flex items-center justify-center" style={{ width: 300, height: 250 }} />
+            <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
+              var atOptions = {
+                'key' : '208e66d41cfa6e22469da9df59ae57fc',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            `}</Script>
+            <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
+          </div>
+
+          {/* 160x600 iframe - mobilde gizle, lg ve üstünde göster */}
+          <div className="hidden lg:flex w-full rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
+            <div className="flex items-center justify-center" style={{ width: 160, height: 600 }} />
+            <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
+              var atOptions = {
+                'key' : '330827705bb5350a894aee8ca1e0a40a',
+                'format' : 'iframe',
+                'height' : 600,
+                'width' : 160,
+                'params' : {}
+              };
+            `}</Script>
+            <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
+          </div>
+
+          {/* Ek script (Adsterra) */}
+          <div className="w-full rounded-xl border border-black/10 bg-neutral-50 p-2">
+            <Script id="adsterra-extra" src="//pl27962021.effectivegatecpm.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
           </div>
         </div>
 
