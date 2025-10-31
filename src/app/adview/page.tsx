@@ -246,23 +246,32 @@ function AdViewClient() {
               </div>
             </div>
 
-            {/* Buton ve durum mesajları */}
-            <div className="p-4 rounded-xl border border-black/10 bg-white flex flex-col gap-3 text-sm">
-            <button
+            {/* Buton ve sayaç: yan yana ve altta tek satır */}
+            <div className="p-4 rounded-xl border border-black/10 bg-white flex flex-wrap items-center justify-between gap-3 text-sm">
+              <div className="text-slate-600">
+                {error ? (
+                  <span className="text-red-600">{error}</span>
+                ) : done && !redirect ? (
+                  <span className="text-emerald-600">Tamamlandı, yönlendiriliyor...</span>
+                ) : !passedThreshold ? (
+                  <span>Önce reklam alanını görünür ve etkileşimli tutarak eşiği geçin.</span>
+                ) : !canProceed && !isPageVisible ? (
+                  <span className="text-red-500">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</span>
+                ) : !canProceed && !isPageFocused ? (
+                  <span className="text-red-500">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</span>
+                ) : !canProceed ? (
+                  <span>Eşik geçildi. Lütfen 5 saniye bekleyin... ({countdown}s)</span>
+                ) : (
+                  <span>Hazır.</span>
+                )}
+              </div>
+              <button
                 onClick={submitStage}
-              disabled={submitting || done || !canProceed}
+                disabled={submitting || done || !canProceed}
                 className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
               >
-                {submitting ? 'Gönderiliyor...' : 
-                 !canProceed ? `Bekleyin... (${countdown}s)` :
-                 stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)'}
+                {submitting ? 'Gönderiliyor...' : canProceed ? (stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)') : `Bekleyin... (${countdown}s)`}
               </button>
-            {!passedThreshold && <div className="text-slate-500 text-center">Önce reklam alanını görünür ve etkileşimli tutarak eşiği geçin.</div>}
-            {!canProceed && passedThreshold && !isPageVisible && <div className="text-red-500 text-center">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</div>}
-            {!canProceed && passedThreshold && !isPageFocused && <div className="text-red-500 text-center">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</div>}
-            {!canProceed && passedThreshold && isPageVisible && isPageFocused && <div className="text-slate-500 text-center">Eşik geçildi. Lütfen 5 saniye bekleyin... ({countdown}s)</div>}
-              {error && <div className="text-red-600 text-center">{error}</div>}
-              {done && !redirect && <div className="text-emerald-600 text-center">Tamamlandı, yönlendiriliyor...</div>}
             </div>
           </div>
 
