@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState, useEffect } from "react";
+import { Suspense, useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAdMetrics } from "@/lib/useAdMetrics";
 import { ImpressionMetricsPayload, ImpressionStage, postImpression, consumeAdminAdOnce } from "@/lib/api";
@@ -212,17 +212,11 @@ function AdViewClient() {
           <div className="lg:col-span-2 flex flex-col gap-4">
             {/* 160x600 iframe - mobilde gizle, desktop'ta göster */}
             <div className="hidden lg:flex rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
-              <div className="flex items-center justify-center" style={{ width: 160, height: 600 }} />
-              <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
-                var atOptions = {
-                  'key' : '330827705bb5350a894aee8ca1e0a40a',
-                  'format' : 'iframe',
-                  'height' : 600,
-                  'width' : 160,
-                  'params' : {}
-                };
-              `}</Script>
-              <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
+              <AdsterraIframe
+                options={{ key: '330827705bb5350a894aee8ca1e0a40a', format: 'iframe', height: 600, width: 160, params: {} }}
+                src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js"
+                style={{ width: 160, height: 600 }}
+              />
             </div>
           </div>
 
@@ -280,17 +274,11 @@ function AdViewClient() {
           <div className="lg:col-span-3 flex flex-col gap-4">
             {/* 300x250 iframe */}
             <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
-              <div className="flex items-center justify-center" style={{ width: 300, height: 250 }} />
-              <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
-                var atOptions = {
-                  'key' : '208e66d41cfa6e22469da9df59ae57fc',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              `}</Script>
-              <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
+              <AdsterraIframe
+                options={{ key: '208e66d41cfa6e22469da9df59ae57fc', format: 'iframe', height: 250, width: 300, params: {} }}
+                src="//stopperscared.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js"
+                style={{ width: 300, height: 250 }}
+              />
             </div>
 
             {/* Ek script (Adsterra) */}
@@ -302,6 +290,36 @@ function AdViewClient() {
       </div>
     </div>
   );
+}
+
+// Simple queue to load Adsterra units sequentially to avoid atOptions clobbering
+let adsterraQueue: Promise<void> = Promise.resolve();
+
+function AdsterraIframe({ options, src, style }: { options: Record<string, unknown>; src: string; style?: React.CSSProperties }) {
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    let isCancelled = false;
+    adsterraQueue = adsterraQueue.then(() => new Promise<void>((resolve) => {
+      if (!hostRef.current) { resolve(); return; }
+      // Clear previous content
+      hostRef.current.innerHTML = "";
+      // Options script (must be global name atOptions for Adsterra)
+      const opts = document.createElement('script');
+      opts.type = 'text/javascript';
+      opts.text = `atOptions = ${JSON.stringify(options)};`;
+      // Invoke script (synchronous to preserve order)
+      const invoke = document.createElement('script');
+      invoke.type = 'text/javascript';
+      invoke.src = src;
+      (invoke as any).async = false;
+      invoke.onload = () => { if (!isCancelled) resolve(); };
+      invoke.onerror = () => { if (!isCancelled) resolve(); };
+      hostRef.current.appendChild(opts);
+      hostRef.current.appendChild(invoke);
+    }));
+    return () => { isCancelled = true; };
+  }, [options, src]);
+  return <div ref={hostRef} style={style} />;
 }
 
 export default function AdViewPage() {
