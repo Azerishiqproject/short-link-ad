@@ -205,88 +205,98 @@ function AdViewClient() {
       <Script id="linkvertise-init-adview" strategy="afterInteractive">{`
         try { linkvertise(1415315, { whitelist: ["glorta.com","glorta.link"] }); } catch (_) {}
       `}</Script>
-      <div className="w-full max-w-5xl rounded-2xl border border-black/10 bg-white shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900">Reklam Görüntüleme</h1>
-            <p className="text-xs text-slate-500">Reklam {stage}/2 • Eşik: {passedThreshold ? "Geçildi" : "Bekleniyor"}</p>
-          </div>
-          <span className={`px-2 py-1 rounded-md text-xs ${stage===1? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>Aşama {stage}</span>
-        </div>
-
-        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
-          <div className="h-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
-        </div>
-
-        {/* Reklam kutularını kaldırdık; sadece iframeler ve scriptler, responsive düzen */}
-        <div className="flex flex-col gap-4">
-          {/* Ana izlenen alan: Adsterra Native */}
-          <div ref={setDivRef} className="w-full rounded-xl border border-black/10 bg-neutral-50">
-            <div id="lv-ad-main" className="w-full h-full flex items-center justify-center p-2">
-              <div id="container-7cf6ae2b4489f51ec0162164b881837d" className="w-full flex items-center justify-center" />
-              <Script
-                id="adsterra-native"
-                async
-                data-cfasync="false"
-                src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
-                strategy="afterInteractive"
-              />
+      <div className="w-full max-w-7xl">
+        {/* Grid layout: sol reklamlar - ortada kontrol - sağ reklamlar */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          {/* Sol taraf reklamlar - mobilde üstte, desktop'ta solda */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            {/* 160x600 iframe - mobilde gizle, desktop'ta göster */}
+            <div className="hidden lg:flex rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
+              <div className="flex items-center justify-center" style={{ width: 160, height: 600 }} />
+              <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
+                var atOptions = {
+                  'key' : '330827705bb5350a894aee8ca1e0a40a',
+                  'format' : 'iframe',
+                  'height' : 600,
+                  'width' : 160,
+                  'params' : {}
+                };
+              `}</Script>
+              <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
             </div>
           </div>
 
-          {/* 300x250 iframe - her cihazda görünür */}
-          <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
-            <div className="flex items-center justify-center" style={{ width: 300, height: 250 }} />
-            <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
-              var atOptions = {
-                'key' : '208e66d41cfa6e22469da9df59ae57fc',
-                'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
-                'params' : {}
-              };
-            `}</Script>
-            <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
+          {/* Orta kısım: Kontrol Paneli */}
+          <div className="lg:col-span-8 rounded-2xl border border-black/10 bg-white shadow-sm p-6">
+            <div className="flex flex-col items-center justify-center mb-4">
+              <div className="w-full flex items-center justify-between mb-2">
+                <div>
+                  <h1 className="text-lg font-semibold text-slate-900">Reklam Görüntüleme</h1>
+                  <p className="text-xs text-slate-500">Reklam {stage}/2 • Eşik: {passedThreshold ? "Geçildi" : "Bekleniyor"}</p>
+                </div>
+                <span className={`px-2 py-1 rounded-md text-xs ${stage===1? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>Aşama {stage}</span>
+              </div>
+
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
+                <div className="h-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+
+            {/* Ana izlenen alan: Adsterra Native */}
+            <div ref={setDivRef} className="w-full rounded-xl border border-black/10 bg-neutral-50 mb-4">
+              <div id="lv-ad-main" className="w-full h-full flex items-center justify-center p-2 min-h-[320px]">
+                <div id="container-7cf6ae2b4489f51ec0162164b881837d" className="w-full flex items-center justify-center" />
+                <Script
+                  id="adsterra-native"
+                  async
+                  data-cfasync="false"
+                  src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
+                  strategy="afterInteractive"
+                />
+              </div>
+            </div>
+
+            {/* Buton ve durum mesajları */}
+            <div className="p-4 rounded-xl border border-black/10 bg-white flex flex-col gap-3 text-sm">
+              <button
+                onClick={submitStage}
+                disabled={!passedThreshold || submitting || done || !canProceed}
+                className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {submitting ? 'Gönderiliyor...' : 
+                 !canProceed ? `Bekleyin... (${countdown}s)` :
+                 stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)'}
+              </button>
+              {!passedThreshold && <div className="text-slate-500 text-center">Eşiği geçmek için alanı en az 5 sn görünür tutun ve etkileşim yapın.</div>}
+              {!canProceed && passedThreshold && !isPageVisible && <div className="text-red-500 text-center">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</div>}
+              {!canProceed && passedThreshold && !isPageFocused && <div className="text-red-500 text-center">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</div>}
+              {!canProceed && passedThreshold && isPageVisible && isPageFocused && <div className="text-slate-500 text-center">Lütfen 5 saniye bekleyin... ({countdown}s)</div>}
+              {error && <div className="text-red-600 text-center">{error}</div>}
+              {done && !redirect && <div className="text-emerald-600 text-center">Tamamlandı, yönlendiriliyor...</div>}
+            </div>
           </div>
 
-          {/* 160x600 iframe - mobilde gizle, lg ve üstünde göster */}
-          <div className="hidden lg:flex w-full rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
-            <div className="flex items-center justify-center" style={{ width: 160, height: 600 }} />
-            <Script id="adsterra-banner-160x600-opts" strategy="afterInteractive">{`
-              var atOptions = {
-                'key' : '330827705bb5350a894aee8ca1e0a40a',
-                'format' : 'iframe',
-                'height' : 600,
-                'width' : 160,
-                'params' : {}
-              };
-            `}</Script>
-            <Script id="adsterra-banner-160x600-script" src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js" strategy="afterInteractive" />
-          </div>
+          {/* Sağ taraf reklamlar - mobilde altta, desktop'ta sağda */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            {/* 300x250 iframe */}
+            <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
+              <div className="flex items-center justify-center" style={{ width: 300, height: 250 }} />
+              <Script id="adsterra-banner-300x250-opts" strategy="afterInteractive">{`
+                var atOptions = {
+                  'key' : '208e66d41cfa6e22469da9df59ae57fc',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              `}</Script>
+              <Script id="adsterra-banner-300x250-script" src="//www.highperformanceformat.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" />
+            </div>
 
-          {/* Ek script (Adsterra) */}
-          <div className="w-full rounded-xl border border-black/10 bg-neutral-50 p-2">
-            <Script id="adsterra-extra" src="//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <div className="p-4 rounded-xl border border-black/10 bg-white flex items-center gap-3 text-sm">
-            <button
-              onClick={submitStage}
-              disabled={!passedThreshold || submitting || done || !canProceed}
-              className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-            >
-              {submitting ? 'Gönderiliyor...' : 
-               !canProceed ? `Bekleyin... (${countdown}s)` :
-               stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)'}
-            </button>
-            {!passedThreshold && <div className="text-slate-500">Eşiği geçmek için alanı en az 5 sn görünür tutun ve etkileşim yapın.</div>}
-            {!canProceed && passedThreshold && !isPageVisible && <div className="text-red-500">⚠️ Sayfa görünür değil! Lütfen sayfaya geri dönün.</div>}
-            {!canProceed && passedThreshold && !isPageFocused && <div className="text-red-500">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</div>}
-            {!canProceed && passedThreshold && isPageVisible && isPageFocused && <div className="text-slate-500">Lütfen 5 saniye bekleyin... ({countdown}s)</div>}
-            {error && <div className="text-red-600">{error}</div>}
-            {done && !redirect && <div className="text-emerald-600">Tamamlandı, yönlendiriliyor...</div>}
+            {/* Ek script (Adsterra) */}
+            <div className="w-full rounded-xl border border-black/10 bg-neutral-50 p-2">
+              <Script id="adsterra-extra" src="//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
+            </div>
           </div>
         </div>
       </div>
