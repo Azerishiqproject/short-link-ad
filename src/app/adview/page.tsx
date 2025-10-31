@@ -227,7 +227,7 @@ function AdViewClient() {
           </div>
 
           {/* Orta kısım: Kontrol Paneli */}
-          <div className="lg:col-span-8 rounded-2xl border border-black/10 bg-white shadow-sm p-6">
+          <div className="lg:col-span-7 rounded-2xl border border-black/10 bg-white shadow-sm p-6">
             <div className="flex flex-col items-center justify-center mb-4">
               <div className="w-full flex items-center justify-between mb-2">
                 <div>
@@ -277,7 +277,7 @@ function AdViewClient() {
           </div>
 
           {/* Sağ taraf reklamlar - mobilde altta, desktop'ta sağda */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="lg:col-span-3 flex flex-col gap-4">
             {/* 300x250 iframe */}
             <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
               <div className="flex items-center justify-center" style={{ width: 300, height: 250 }} />
