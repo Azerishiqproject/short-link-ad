@@ -266,7 +266,7 @@ function AdViewClient() {
 
           {/* Ek script (Adsterra) */}
           <div className="w-full rounded-xl border border-black/10 bg-neutral-50 p-2">
-            <Script id="adsterra-extra" src="//pl27962021.effectivegatecpm.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
+            <Script id="adsterra-extra" src="//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
           </div>
         </div>
 
