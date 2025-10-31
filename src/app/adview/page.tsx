@@ -225,20 +225,52 @@ function AdViewClient() {
           <div className="lg:col-span-2">
             <div ref={setDivRef} className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-50 h-[320px] flex items-center justify-center">
               <div id="lv-ad-main" className="w-full h-full flex items-center justify-center">
-                <span className="text-sm">{stage === 1 ? "Reklam Alanı #1" : "Reklam Alanı #2"}</span>
+                {/* Adsterra Native (Async) */}
+                <div id="container-7cf6ae2b4489f51ec0162164b881837d" className="w-full h-full flex items-center justify-center"></div>
+                <Script
+                  id="adsterra-native"
+                  async
+                  data-cfasync="false"
+                  src="//pl27961098.effectivgatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
+                  strategy="afterInteractive"
+                />
               </div>
             </div>
           </div>
           {/* İkincil alanlar (placeholder) */}
           <div className="grid grid-rows-2 gap-4">
+            {/* Adsterra Banner 300x250 - Slot 1 */}
             <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
               <div id="lv-ad-side-1" className="w-full h-full flex items-center justify-center">
-                <span className="text-xs">Yan Banner</span>
+                <div id="adsterra-banner-1" style={{ width: 300, height: 250 }} />
+                <Script id="adsterra-banner-1-opts" strategy="afterInteractive">{`
+                  var atOptions = {
+                    'key': '208e66d41cfa6e22469da9df59ae57fc',
+                    'format': 'iframe',
+                    'height': 250,
+                    'width': 300,
+                    'params': {}
+                  };
+                `}</Script>
+                {/* NOTE: Provide the exact invoke.js URL for this unit */}
+                {/* <Script id="adsterra-banner-1-script" src="//YOUR_ADSTERRA_DOMAIN/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" /> */}
               </div>
             </div>
+            {/* Adsterra Banner 300x250 - Slot 2 */}
             <div className="rounded-xl border border-black/10 bg-neutral-50 text-neutral-500 h-[148px] flex items-center justify-center">
               <div id="lv-ad-side-2" className="w-full h-full flex items-center justify-center">
-                <span className="text-xs">Yan Banner</span>
+                <div id="adsterra-banner-2" style={{ width: 300, height: 250 }} />
+                <Script id="adsterra-banner-2-opts" strategy="afterInteractive">{`
+                  var atOptions = {
+                    'key': '208e66d41cfa6e22469da9df59ae57fc',
+                    'format': 'iframe',
+                    'height': 250,
+                    'width': 300,
+                    'params': {}
+                  };
+                `}</Script>
+                {/* NOTE: Provide the exact invoke.js URL for this unit */}
+                {/* <Script id="adsterra-banner-2-script" src="//YOUR_ADSTERRA_DOMAIN/208e66d41cfa6e22469da9df59ae57fc/invoke.js" strategy="afterInteractive" /> */}
               </div>
             </div>
           </div>
