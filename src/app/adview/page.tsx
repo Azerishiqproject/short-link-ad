@@ -55,6 +55,7 @@ function AdViewClient() {
   const [adminAdTried, setAdminAdTried] = useState(false);
   const [stageClickCount, setStageClickCount] = useState(0);
   const hasInitialPopunderFired = useRef(false);
+  const [showEntryModal, setShowEntryModal] = useState(false);
 
   // Popunder script yükleme fonksiyonu (cache-bust + body'ye ekle + throttle)
   const lastPopFire = useRef(0);
@@ -66,17 +67,22 @@ function AdViewClient() {
     lastPopFire.current = now;
 
     try {
+      // Cleanup previously injected popunder scripts to avoid accumulation
+      const existing = document.querySelectorAll('script[data-popunder-script="true"]');
+      existing.forEach((el) => el.parentElement?.removeChild(el as HTMLElement));
       const script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = `//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now}`;
+      script.src = `https://stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now}`;
       script.setAttribute('data-popunder-script', 'true');
+      script.crossOrigin = 'anonymous';
       (document.body || document.head).appendChild(script);
     } catch (_) {
       // Yedek: head'e deneyelim
       const script = document.createElement('script');
       script.type = 'text/javascript';
-      script.src = `//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now + 1}`;
+      script.src = `https://stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now + 1}`;
       script.setAttribute('data-popunder-script', 'true');
+      script.crossOrigin = 'anonymous';
       document.head.appendChild(script);
     }
   };
@@ -110,9 +116,18 @@ function AdViewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
-  // Sayfa yüklendiğinde popunder yükle (burst + ilk gesture)
+  // Sayfa yüklendiğinde: ilk girişte modal göster; onay varsa burst + ilk gesture
   useEffect(() => {
-    if (!hasInitialPopunderFired.current) {
+    let shouldBurst = true;
+    try {
+      const shown = typeof window !== 'undefined' ? sessionStorage.getItem('adview_entry_modal_shown') : '1';
+      if (!shown) {
+        setShowEntryModal(true);
+        shouldBurst = false;
+      }
+    } catch (_) { /* ignore */ }
+
+    if (shouldBurst && !hasInitialPopunderFired.current) {
       hasInitialPopunderFired.current = true;
       // Küçük bir burst: bazı tarayıcılarda ilk çağrı yutulursa takip edenler çalışsın
       loadPopunder();
@@ -129,6 +144,10 @@ function AdViewClient() {
     document.addEventListener('pointerdown', handleFirstGesture, { passive: true });
     document.addEventListener('touchstart', handleFirstGesture, { passive: true });
 
+    return () => {
+      document.removeEventListener('pointerdown', handleFirstGesture);
+      document.removeEventListener('touchstart', handleFirstGesture);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -304,11 +323,44 @@ function AdViewClient() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100">
-      <Script src="https://publisher.linkvertise.com/cdn/linkvertise.js" strategy="afterInteractive" />
+      <Script src="https://publisher.linkvertise.com/cdn/linkvertise.js" strategy="afterInteractive" crossOrigin="anonymous" />
       <Script id="linkvertise-init-adview" strategy="afterInteractive">{`
         try { linkvertise(1415315, { whitelist: ["glorta.com","glorta.link"] }); } catch (_) {}
       `}</Script>
       <div className="w-full max-w-7xl">
+        {showEntryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-xl border border-black/10 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">Teklifi Aç</h2>
+              <p className="text-sm text-slate-600 mb-4">Devam ettiğinizde yeni bir pencerede teklif açılacaktır.</p>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  onClick={() => {
+                    try { sessionStorage.setItem('adview_entry_modal_shown', '1'); } catch (_) {}
+                    setShowEntryModal(false);
+                  }}
+                  className="px-4 py-2 text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg text-sm font-medium"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={() => {
+                    // Kullanıcı onayı ile popunder tetikle ve küçük bir ek burst yap
+                    loadPopunder(true);
+                    setTimeout(() => loadPopunder(true), 200);
+                    setTimeout(() => loadPopunder(true), 700);
+                    try { sessionStorage.setItem('adview_entry_modal_shown', '1'); } catch (_) {}
+                    setShowEntryModal(false);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white rounded-lg text-sm font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                >
+                  Geç ve Aç
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Grid layout: sol reklamlar - ortada kontrol - sağ reklamlar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           {/* Sol taraf reklamlar - mobilde üstte, desktop'ta solda */}
@@ -331,7 +383,7 @@ function AdViewClient() {
             <div className="hidden lg:flex rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
               <AdsterraIframe
                 options={{ key: '330827705bb5350a894aee8ca1e0a40a', format: 'iframe', height: 600, width: 160, params: {} }}
-                src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js"
+                src="https://www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js"
                 style={{ width: 160, height: 600 }}
               />
             </div>
@@ -410,8 +462,9 @@ function AdViewClient() {
                   id="adsterra-native"
                   async
                   data-cfasync="false"
-                  src="//pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
+                  src="https://pl27961098.effectivegatecpm.com/7cf6ae2b4489f51ec0162164b881837d/invoke.js"
                   strategy="afterInteractive"
+                  crossOrigin="anonymous"
                 />
               </div>
             </div>
@@ -495,7 +548,7 @@ function AdViewClient() {
             <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
               <AdsterraIframe
                 options={{ key: '208e66d41cfa6e22469da9df59ae57fc', format: 'iframe', height: 250, width: 300, params: {} }}
-                src="//stopperscared.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js"
+                src="https://stopperscared.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js"
                 style={{ width: 300, height: 250 }}
               />
             </div>
