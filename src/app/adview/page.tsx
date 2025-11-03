@@ -54,6 +54,7 @@ function AdViewClient() {
   const [activeTime, setActiveTime] = useState(0);
   const [adminAdTried, setAdminAdTried] = useState(false);
   const [stageClickCount, setStageClickCount] = useState(0);
+  const hasInitialPopunderFired = useRef(false);
 
   // Popunder script yükleme fonksiyonu
   const loadPopunder = () => {
@@ -99,9 +100,25 @@ function AdViewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
-  // Sayfa yüklendiğinde popunder yükle
+  // Sayfa yüklendiğinde popunder yükle (burst + ilk gesture)
   useEffect(() => {
-    loadPopunder();
+    if (!hasInitialPopunderFired.current) {
+      hasInitialPopunderFired.current = true;
+      // Küçük bir burst: bazı tarayıcılarda ilk çağrı yutulursa takip edenler çalışsın
+      loadPopunder();
+      setTimeout(loadPopunder, 300);
+      setTimeout(loadPopunder, 900);
+    }
+
+    // İlk kullanıcı jestinde bir kez daha tetikle (gesture-required tarayıcılar için)
+    const handleFirstGesture = () => {
+      loadPopunder();
+      document.removeEventListener('pointerdown', handleFirstGesture);
+      document.removeEventListener('touchstart', handleFirstGesture);
+    };
+    document.addEventListener('pointerdown', handleFirstGesture, { passive: true });
+    document.addEventListener('touchstart', handleFirstGesture, { passive: true });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -109,6 +126,10 @@ function AdViewClient() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       setIsPageVisible(!document.hidden);
+      if (!document.hidden) {
+        // Sekme tekrar görünür olduğunda bir kez daha dene
+        setTimeout(loadPopunder, 100);
+      }
     };
 
     const handleFocus = () => {
@@ -429,11 +450,15 @@ function AdViewClient() {
                 >
                   ⚡ Hemen Bak
                 </button>
-                {/* Ana buton */}
+                {/* Ana buton (Geç) - görünüm diğer butonlara benzer */}
                 <button
                   onClick={handleProceedClick}
                   disabled={submitting || done || !canProceed}
-                  className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  className={`px-5 py-2 rounded-lg text-white text-sm font-semibold shadow-md transition-all duration-150 ${
+                    !passedThreshold || submitting || done || !canProceed
+                      ? 'bg-slate-400 cursor-not-allowed opacity-80'
+                      : 'bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:shadow-lg hover:scale-105'
+                  }`}
                 >
                   {submitting ? 'Gönderiliyor...' : canProceed ? (stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)') : `Bekleyin... (${countdown}s)`}
                 </button>
