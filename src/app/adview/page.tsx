@@ -56,19 +56,29 @@ function AdViewClient() {
   const [stageClickCount, setStageClickCount] = useState(0);
   const hasInitialPopunderFired = useRef(false);
 
-  // Popunder script yükleme fonksiyonu
-  const loadPopunder = () => {
-    // Mevcut script'i kaldır (varsa)
-    const existing = document.querySelector('script[data-popunder-script]');
-    if (existing) {
-      existing.remove();
+  // Popunder script yükleme fonksiyonu (cache-bust + body'ye ekle + throttle)
+  const lastPopFire = useRef(0);
+  const loadPopunder = (force: boolean = false) => {
+    const now = Date.now();
+    if (!force && now - lastPopFire.current < 800) {
+      return; // Çok hızlı ardışık çağrıları engelle
     }
-    // Yeni script oluştur ve yükle
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js';
-    script.setAttribute('data-popunder-script', 'true');
-    document.head.appendChild(script);
+    lastPopFire.current = now;
+
+    try {
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = `//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now}`;
+      script.setAttribute('data-popunder-script', 'true');
+      (document.body || document.head).appendChild(script);
+    } catch (_) {
+      // Yedek: head'e deneyelim
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = `//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js?cb=${now + 1}`;
+      script.setAttribute('data-popunder-script', 'true');
+      document.head.appendChild(script);
+    }
   };
 
   const metricsPayload: ImpressionMetricsPayload = useMemo(
