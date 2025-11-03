@@ -54,6 +54,21 @@ function AdViewClient() {
   const [activeTime, setActiveTime] = useState(0);
   const [adminAdTried, setAdminAdTried] = useState(false);
 
+  // Popunder script yükleme fonksiyonu
+  const loadPopunder = () => {
+    // Mevcut script'i kaldır (varsa)
+    const existing = document.querySelector('script[data-popunder-script]');
+    if (existing) {
+      existing.remove();
+    }
+    // Yeni script oluştur ve yükle
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js';
+    script.setAttribute('data-popunder-script', 'true');
+    document.head.appendChild(script);
+  };
+
   const metricsPayload: ImpressionMetricsPayload = useMemo(
     () => ({
       visible_ms: state.visibleMs,
@@ -73,12 +88,20 @@ function AdViewClient() {
     (ref as (el: HTMLElement | null) => void)(node);
   };
 
-  // Aşama değiştiğinde timer'ı sıfırla
+  // Aşama değiştiğinde timer'ı sıfırla ve popunder yükle
   useEffect(() => {
     setCanProceed(false);
     setCountdown(5);
     setActiveTime(0);
+    loadPopunder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
+
+  // Sayfa yüklendiğinde popunder yükle
+  useEffect(() => {
+    loadPopunder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Page visibility ve focus kontrolü
   useEffect(() => {
@@ -105,6 +128,20 @@ function AdViewClient() {
     };
   }, []);
 
+  // Sayfadaki her tıklamada popunder yükle
+  useEffect(() => {
+    const handleClick = () => {
+      loadPopunder();
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Gerçek zamanlı countdown - eşik geçildikten sonra ve sayfa görünür + odakta iken
   useEffect(() => {
     if (!canProceed && passedThreshold) {
@@ -127,6 +164,8 @@ function AdViewClient() {
 
   const submitStage = async () => {
     if (!token || submitting || done || !canProceed) return;
+    // Buton tıklandığında popunder yükle
+    loadPopunder();
     try {
       setSubmitting(true);
       setError(null);
@@ -286,10 +325,7 @@ function AdViewClient() {
               />
             </div>
 
-            {/* Ek script (Adsterra) */}
-            <div className="w-full rounded-xl border border-black/10 bg-neutral-50 p-2">
-              <Script id="adsterra-extra" src="//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js" strategy="afterInteractive" />
-            </div>
+            {/* Popunder script artık dinamik olarak yükleniyor (sayfa yükleme, aşama değişimi, buton tıklaması) */}
           </div>
         </div>
       </div>
