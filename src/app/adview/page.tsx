@@ -37,9 +37,13 @@ function AdViewClient() {
   const router = useRouter();
   const token = search.get("t") ?? "";
 
+  const isMobileDevice = typeof navigator !== 'undefined'
+    ? (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (typeof window !== 'undefined' && window.innerWidth < 768))
+    : false;
+
   const { ref, state, passedThreshold, reset } = useAdMetrics({
     minimumVisibleMs: 5000,
-    minimumVisibilityRatio: 0.5,
+    minimumVisibilityRatio: isMobileDevice ? 0.35 : 0.5,
   });
 
   const [stage, setStage] = useState<ImpressionStage>(1);
@@ -113,6 +117,14 @@ function AdViewClient() {
     setActiveTime(0);
     setStageClickCount(0);
     loadPopunder();
+    // Mobilde görünürlük eşiğine daha hızlı ulaşmak için reklam alanını görünür yap
+    try {
+      const el = document.getElementById('lv-ad-main');
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 600);
+      }
+    } catch (_) { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
 
@@ -154,8 +166,11 @@ function AdViewClient() {
   // Page visibility ve focus kontrolü
   useEffect(() => {
     const handleVisibilityChange = () => {
-      setIsPageVisible(!document.hidden);
-      if (!document.hidden) {
+      const visible = !document.hidden;
+      setIsPageVisible(visible);
+      if (visible) {
+        // iOS Safari odak bilgisini geri vermeyebilir; görünür olduysa odak kabul et
+        setIsPageFocused(true);
         // Sekme tekrar görünür olduğunda bir kez daha dene
         setTimeout(loadPopunder, 100);
       }
@@ -217,7 +232,8 @@ function AdViewClient() {
   useEffect(() => {
     if (!canProceed) {
       const interval = setInterval(() => {
-        if (isPageVisible && isPageFocused) {
+        const canTick = isPageVisible && (isPageFocused || isMobileDevice);
+        if (canTick) {
           setActiveTime(prev => {
             const newActiveTime = prev + 0.1; // 100ms artır
             const remaining = Math.max(0, 5 - newActiveTime);
@@ -231,7 +247,7 @@ function AdViewClient() {
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [canProceed, passedThreshold, isPageVisible, isPageFocused]);
+  }, [canProceed, passedThreshold, isPageVisible, isPageFocused, isMobileDevice]);
 
   // Eşik sonradan geçilirse ve süre tamamlanmışsa butonu aç
   useEffect(() => {
