@@ -69,6 +69,13 @@ function AdViewClient() {
     document.head.appendChild(script);
   };
 
+  // Popunder'ı ardışık olarak birden fazla kez tetikle
+  const triggerPopunderBurst = (times: number = 3, delayMs: number = 200) => {
+    for (let i = 0; i < times; i++) {
+      setTimeout(() => loadPopunder(), i * delayMs);
+    }
+  };
+
   const metricsPayload: ImpressionMetricsPayload = useMemo(
     () => ({
       visible_ms: state.visibleMs,
@@ -183,8 +190,8 @@ function AdViewClient() {
 
   const submitStage = async () => {
     if (!token || submitting || done || !canProceed) return;
-    // Buton tıklandığında popunder yükle
-    loadPopunder();
+    // Geç butonu tıklanınca popunder'ı 3 kez tetikle
+    triggerPopunderBurst(3, 250);
     try {
       setSubmitting(true);
       setError(null);
