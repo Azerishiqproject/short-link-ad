@@ -142,12 +142,12 @@ function AdViewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Scroll'da popunder yükle (throttled)
+  // Scroll'da popunder yükle (throttled - her 1 saniyede bir)
   useEffect(() => {
     let lastScrollTime = 0;
     const handleScroll = () => {
       const now = Date.now();
-      if (now - lastScrollTime > 500) { // Her 500ms'de bir
+      if (now - lastScrollTime > 1000) {
         loadPopunder();
         lastScrollTime = now;
       }
@@ -157,67 +157,6 @@ function AdViewClient() {
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Mouse move'da popunder yükle (throttled)
-  useEffect(() => {
-    let lastMoveTime = 0;
-    const handleMouseMove = () => {
-      const now = Date.now();
-      if (now - lastMoveTime > 1000) { // Her 1 saniyede bir
-        loadPopunder();
-        lastMoveTime = now;
-      }
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Klavye olaylarında popunder yükle
-  useEffect(() => {
-    const handleKeyDown = () => {
-      loadPopunder();
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Mouse enter/leave event'lerinde popunder yükle
-  useEffect(() => {
-    const handleMouseEnter = () => {
-      loadPopunder();
-    };
-
-    document.addEventListener('mouseenter', handleMouseEnter);
-    document.addEventListener('mouseleave', handleMouseEnter);
-
-    return () => {
-      document.removeEventListener('mouseenter', handleMouseEnter);
-      document.removeEventListener('mouseleave', handleMouseEnter);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Belirli aralıklarla otomatik popunder yükle (her 3 saniyede bir)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadPopunder();
-    }, 3000); // Her 3 saniyede bir
-
-    return () => {
-      clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -325,6 +264,20 @@ function AdViewClient() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
           {/* Sol taraf reklamlar - mobilde üstte, desktop'ta solda */}
           <div className="lg:col-span-2 flex flex-col gap-4">
+            {/* Sol tarafta popunder butonu - mobilde gizle */}
+            <div className="hidden lg:flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-4 py-2 bg-gradient-to-r from-teal-400 to-cyan-500 text-white font-bold text-sm rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                  writingMode: 'vertical-rl',
+                  textOrientation: 'mixed',
+                }}
+              >
+                🎯 Şansını Dene
+              </button>
+            </div>
             {/* 160x600 iframe - mobilde gizle, desktop'ta göster */}
             <div className="hidden lg:flex rounded-xl border border-black/10 bg-neutral-50 items-center justify-center p-2">
               <AdsterraIframe
@@ -332,6 +285,18 @@ function AdViewClient() {
                 src="//www.highperformanceformat.com/330827705bb5350a894aee8ca1e0a40a/invoke.js"
                 style={{ width: 160, height: 600 }}
               />
+            </div>
+            {/* Sol tarafta alt popunder butonu */}
+            <div className="hidden lg:flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-4 py-2 bg-gradient-to-r from-rose-400 to-orange-500 text-white font-bold text-sm rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                }}
+              >
+                💎 Özel Avantaj
+              </button>
             </div>
           </div>
 
@@ -343,12 +308,49 @@ function AdViewClient() {
                   <h1 className="text-lg font-semibold text-slate-900">Reklam Görüntüleme</h1>
                   <p className="text-xs text-slate-500">Reklam {stage}/2 • Eşik: {passedThreshold ? "Geçildi" : "Bekleniyor"}</p>
                 </div>
-                <span className={`px-2 py-1 rounded-md text-xs ${stage===1? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>Aşama {stage}</span>
+                <div className="flex items-center gap-2">
+                  {/* Header yanında popunder butonu */}
+                  <button
+                    onClick={() => loadPopunder()}
+                    className="px-3 py-1.5 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold text-xs rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all"
+                    style={{
+                      background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+                    }}
+                  >
+                    💰 Kazan
+                  </button>
+                  <span className={`px-2 py-1 rounded-md text-xs ${stage===1? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>Aşama {stage}</span>
+                </div>
               </div>
 
-              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-4">
-                <div className="h-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+              <div className="w-full mb-4">
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden mb-2">
+                  <div className="h-full bg-blue-600 transition-all" style={{ width: `${progress}%` }} />
+                </div>
+                {/* Progress bar altında küçük buton */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => loadPopunder()}
+                    className="px-4 py-1.5 bg-gradient-to-r from-orange-400 to-pink-500 text-white font-semibold text-xs rounded-md shadow-sm hover:shadow-md transform hover:scale-105 transition-all"
+                  >
+                    🔥 Özel Fırsat
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Büyük cazibeli buton - popunder için */}
+            <div className="w-full mb-4 flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 animate-pulse hover:animate-none"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: '0 10px 25px rgba(102, 126, 234, 0.4)',
+                }}
+              >
+                🎁 Özel Teklifi Görüntüle 🎁
+              </button>
             </div>
 
             {/* Ana izlenen alan: Adsterra Native */}
@@ -363,6 +365,19 @@ function AdViewClient() {
                   strategy="afterInteractive"
                 />
               </div>
+            </div>
+
+            {/* Reklam alanının altında buton */}
+            <div className="w-full mb-4 flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                }}
+              >
+                ⭐ Premium Teklif İçin Tıkla ⭐
+              </button>
             </div>
 
             {/* Buton ve sayaç: yan yana ve altta tek satır */}
@@ -384,18 +399,45 @@ function AdViewClient() {
                   <span>Hazır.</span>
                 )}
               </div>
-              <button
-                onClick={submitStage}
-                disabled={submitting || done || !canProceed}
-                className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-              >
-                {submitting ? 'Gönderiliyor...' : canProceed ? (stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)') : `Bekleyin... (${countdown}s)`}
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Küçük cazibeli buton - popunder için */}
+                <button
+                  onClick={() => loadPopunder()}
+                  className="px-3 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold text-xs rounded-lg shadow-md hover:shadow-lg transform hover:scale-110 transition-all duration-150"
+                  style={{
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    boxShadow: '0 4px 15px rgba(245, 87, 108, 0.3)',
+                  }}
+                >
+                  ⚡ Hemen Bak
+                </button>
+                {/* Ana buton */}
+                <button
+                  onClick={submitStage}
+                  disabled={submitting || done || !canProceed}
+                  className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  {submitting ? 'Gönderiliyor...' : canProceed ? (stage === 1 ? 'Geç (Aşama 1)' : 'Geç (Aşama 2)') : `Bekleyin... (${countdown}s)`}
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Sağ taraf reklamlar - mobilde altta, desktop'ta sağda */}
           <div className="lg:col-span-3 flex flex-col gap-4">
+            {/* Sağ tarafta üst popunder butonu */}
+            <div className="w-full flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-5 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold text-sm rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                }}
+              >
+                🚀 Hızlı Geçiş
+              </button>
+            </div>
+
             {/* 300x250 iframe */}
             <div className="w-full rounded-xl border border-black/10 bg-neutral-50 flex items-center justify-center p-2">
               <AdsterraIframe
@@ -403,6 +445,32 @@ function AdViewClient() {
                 src="//stopperscared.com/208e66d41cfa6e22469da9df59ae57fc/invoke.js"
                 style={{ width: 300, height: 250 }}
               />
+            </div>
+
+            {/* Sağ tarafta orta popunder butonu */}
+            <div className="w-full flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-5 py-3 bg-gradient-to-r from-blue-400 to-cyan-500 text-white font-bold text-sm rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #3494E6 0%, #EC6EAD 100%)',
+                }}
+              >
+                🎪 Süpriz Kutusu
+              </button>
+            </div>
+
+            {/* Sağ tarafta alt popunder butonu */}
+            <div className="w-full flex justify-center">
+              <button
+                onClick={() => loadPopunder()}
+                className="px-5 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-white font-bold text-sm rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                }}
+              >
+                🏆 Bonus Al
+              </button>
             </div>
 
             {/* Popunder script artık dinamik olarak yükleniyor (sayfa yükleme, aşama değişimi, buton tıklaması) */}
