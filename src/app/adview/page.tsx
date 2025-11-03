@@ -142,6 +142,86 @@ function AdViewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Scroll'da popunder yükle (throttled)
+  useEffect(() => {
+    let lastScrollTime = 0;
+    const handleScroll = () => {
+      const now = Date.now();
+      if (now - lastScrollTime > 500) { // Her 500ms'de bir
+        loadPopunder();
+        lastScrollTime = now;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mouse move'da popunder yükle (throttled)
+  useEffect(() => {
+    let lastMoveTime = 0;
+    const handleMouseMove = () => {
+      const now = Date.now();
+      if (now - lastMoveTime > 1000) { // Her 1 saniyede bir
+        loadPopunder();
+        lastMoveTime = now;
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Klavye olaylarında popunder yükle
+  useEffect(() => {
+    const handleKeyDown = () => {
+      loadPopunder();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mouse enter/leave event'lerinde popunder yükle
+  useEffect(() => {
+    const handleMouseEnter = () => {
+      loadPopunder();
+    };
+
+    document.addEventListener('mouseenter', handleMouseEnter);
+    document.addEventListener('mouseleave', handleMouseEnter);
+
+    return () => {
+      document.removeEventListener('mouseenter', handleMouseEnter);
+      document.removeEventListener('mouseleave', handleMouseEnter);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Belirli aralıklarla otomatik popunder yükle (her 3 saniyede bir)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadPopunder();
+    }, 3000); // Her 3 saniyede bir
+
+    return () => {
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Gerçek zamanlı countdown - eşik geçildikten sonra ve sayfa görünür + odakta iken
   useEffect(() => {
     if (!canProceed && passedThreshold) {
