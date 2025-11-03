@@ -213,16 +213,16 @@ function AdViewClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Gerçek zamanlı countdown - eşik geçildikten sonra ve sayfa görünür + odakta iken
+  // Gerçek zamanlı countdown - sayfa yüklenir yüklenmez başlar; buton ancak eşik + zaman sağlanınca açılır
   useEffect(() => {
-    if (!canProceed && passedThreshold) {
+    if (!canProceed) {
       const interval = setInterval(() => {
         if (isPageVisible && isPageFocused) {
           setActiveTime(prev => {
             const newActiveTime = prev + 0.1; // 100ms artır
             const remaining = Math.max(0, 5 - newActiveTime);
             setCountdown(Math.ceil(remaining));
-            if (remaining <= 0) {
+            if (remaining <= 0 && passedThreshold) {
               setCanProceed(true);
             }
             return newActiveTime;
@@ -232,6 +232,13 @@ function AdViewClient() {
       return () => clearInterval(interval);
     }
   }, [canProceed, passedThreshold, isPageVisible, isPageFocused]);
+
+  // Eşik sonradan geçilirse ve süre tamamlanmışsa butonu aç
+  useEffect(() => {
+    if (!canProceed && passedThreshold && activeTime >= 5) {
+      setCanProceed(true);
+    }
+  }, [passedThreshold, activeTime, canProceed]);
 
   const submitStage = async () => {
     if (!token || submitting || done || !canProceed) return;
