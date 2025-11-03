@@ -53,6 +53,7 @@ function AdViewClient() {
   const [isPageFocused, setIsPageFocused] = useState(true);
   const [activeTime, setActiveTime] = useState(0);
   const [adminAdTried, setAdminAdTried] = useState(false);
+  const [stageClickCount, setStageClickCount] = useState(0);
 
   // Popunder script yükleme fonksiyonu
   const loadPopunder = () => {
@@ -67,13 +68,6 @@ function AdViewClient() {
     script.src = '//stopperscared.com/3c/8d/a8/3c8da8282fcf948c3c585c6de04a3f97.js';
     script.setAttribute('data-popunder-script', 'true');
     document.head.appendChild(script);
-  };
-
-  // Popunder'ı ardışık olarak birden fazla kez tetikle
-  const triggerPopunderBurst = (times: number = 3, delayMs: number = 200) => {
-    for (let i = 0; i < times; i++) {
-      setTimeout(() => loadPopunder(), i * delayMs);
-    }
   };
 
   const metricsPayload: ImpressionMetricsPayload = useMemo(
@@ -95,11 +89,12 @@ function AdViewClient() {
     (ref as (el: HTMLElement | null) => void)(node);
   };
 
-  // Aşama değiştiğinde timer'ı sıfırla ve popunder yükle
+  // Aşama değiştiğinde timer'ı ve tıklama sayacını sıfırla; popunder yükle
   useEffect(() => {
     setCanProceed(false);
     setCountdown(5);
     setActiveTime(0);
+    setStageClickCount(0);
     loadPopunder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
@@ -190,8 +185,6 @@ function AdViewClient() {
 
   const submitStage = async () => {
     if (!token || submitting || done || !canProceed) return;
-    // Geç butonu tıklanınca popunder'ı 3 kez tetikle
-    triggerPopunderBurst(3, 250);
     try {
       setSubmitting(true);
       setError(null);
@@ -253,6 +246,24 @@ function AdViewClient() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // İlerleme tıklaması: İlk iki tıklamada sadece popunder; üçüncüde ilerle
+  const handleProceedClick = async () => {
+    if (submitting || done) return;
+    if (!canProceed) return; // Eşik/sayaç tamamlanmadan ilerleme yok
+
+    const nextCount = stageClickCount + 1;
+    setStageClickCount(nextCount);
+
+    if (nextCount <= 2) {
+      // İlk iki tıklama: popunder tetikle ve dur
+      loadPopunder();
+      return;
+    }
+
+    // Üçüncü tıklama: gerçek ilerleme
+    await submitStage();
   };
 
   // Remove auto-submit; require explicit user click on the button once threshold is passed
@@ -420,7 +431,7 @@ function AdViewClient() {
                 </button>
                 {/* Ana buton */}
                 <button
-                  onClick={submitStage}
+                  onClick={handleProceedClick}
                   disabled={submitting || done || !canProceed}
                   className={`px-4 py-2 rounded-lg text-white text-sm ${!passedThreshold || submitting || done || !canProceed ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
