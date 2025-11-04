@@ -42,7 +42,7 @@ function AdViewClient() {
     : false;
 
   const { ref, state, passedThreshold, reset } = useAdMetrics({
-    minimumVisibleMs: 5000,
+    minimumVisibleMs: 10000,
     minimumVisibilityRatio: isMobileDevice ? 0.35 : 0.5,
   });
 
@@ -52,7 +52,7 @@ function AdViewClient() {
   const [done, setDone] = useState(false);
   const [redirect, setRedirect] = useState<string | null>(null);
   const [canProceed, setCanProceed] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+  const [countdown, setCountdown] = useState(10);
   const [isPageVisible, setIsPageVisible] = useState(true);
   const [isPageFocused, setIsPageFocused] = useState(true);
   const [activeTime, setActiveTime] = useState(0);
@@ -113,7 +113,7 @@ function AdViewClient() {
   // Aşama değiştiğinde timer'ı ve tıklama sayacını sıfırla; popunder yükle
   useEffect(() => {
     setCanProceed(false);
-    setCountdown(5);
+    setCountdown(10);
     setActiveTime(0);
     setStageClickCount(0);
     loadPopunder();
@@ -236,7 +236,7 @@ function AdViewClient() {
         if (canTick) {
           setActiveTime(prev => {
             const newActiveTime = prev + 0.1; // 100ms artır
-            const remaining = Math.max(0, 5 - newActiveTime);
+            const remaining = Math.max(0, 10 - newActiveTime);
             setCountdown(Math.ceil(remaining));
             if (remaining <= 0 && passedThreshold) {
               setCanProceed(true);
@@ -251,7 +251,7 @@ function AdViewClient() {
 
   // Eşik sonradan geçilirse ve süre tamamlanmışsa butonu aç
   useEffect(() => {
-    if (!canProceed && passedThreshold && activeTime >= 5) {
+    if (!canProceed && passedThreshold && activeTime >= 10) {
       setCanProceed(true);
     }
   }, [passedThreshold, activeTime, canProceed]);
@@ -342,7 +342,7 @@ function AdViewClient() {
   // Remove auto-submit; require explicit user click on the button once threshold is passed
 
   // Simple visibility progress indicator for UX
-  const progress = Math.min(100, Math.round(((state.visibleMs || 0) / 5000) * 100));
+  const progress = Math.min(100, Math.round(((state.visibleMs || 0) / 10000) * 100));
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 to-slate-100">
@@ -519,7 +519,7 @@ function AdViewClient() {
                 ) : !canProceed && !isPageFocused ? (
                   <span className="text-red-500">⚠️ Sayfa odakta değil! Lütfen sayfaya odaklanın.</span>
                 ) : !canProceed ? (
-                  <span>Eşik geçildi. Lütfen 5 saniye bekleyin... ({countdown}s)</span>
+                  <span>Eşik geçildi. Lütfen 10 saniye bekleyin... ({countdown}s)</span>
                 ) : (
                   <span>Hazır.</span>
                 )}
