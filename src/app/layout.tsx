@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "tr.link — Link Kısaltma ve Gelir Elde Etme",
   description: "Uzun linklerinizi kısa ve akıllı linklere dönüştürün. Gelişmiş analitik, yüksek CPM oranları ve anında ödeme sistemi ile linklerinizden gelir elde edin.",
+  // Site doğrulama için özel meta etiketi
+  other: {
+    "a109556bb77e510312820f6b927a247651c29": "a109556bb77e510312820f6b927a247651c29",
+  },
 };
 
 export default function RootLayout({
